@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10111a">
+<meta name="description" content="Discover Android apps on KKKmods.">
+<title>KKKmods — Android Apps</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#" data-home><span class="brand-mark">K</span><span>KKK<span class="brand-accent">mods</span></span></a>
+  <button class="menu-button" id="menuButton" aria-label="Toggle menu">☰</button>
+  <nav id="navLinks"><a href="#best">Best</a><a href="#latest">Latest Apps</a><a href="#about">About</a></nav>
+</header>
+<main>
+  <section class="hero" id="home">
+    <div class="hero-copy">
+      <span class="eyebrow"><span class="live-dot"></span> ANDROID APP HUB</span>
+      <h1>Find your next<br><span>favourite app.</span></h1>
+      <p>Explore apps, check details, and head straight to the download source.</p>
+      <label class="search-wrap"><span>⌕</span><input id="searchInput" type="search" placeholder="Search apps..." autocomplete="off"><kbd>↵</kbd></label>
+    </div>
+    <div class="hero-art" aria-hidden="true"><div class="orb orb-one"></div><div class="orb orb-two"></div><div class="phone-art"><div class="phone-speaker"></div><div class="phone-screen"><div class="mini-logo">K</div><div class="mini-line"></div><div class="mini-line short"></div><div class="mini-apps"><i></i><i></i><i></i><i></i></div></div></div><span class="art-star star-a">✦</span><span class="art-star star-b">✧</span></div>
+  </section>
+
+  <section class="section" id="best">
+    <div class="section-heading"><div><p class="section-kicker">HANDPICKED</p><h2>Best <span class="muted">apps</span></h2></div><span class="section-count">FEATURED</span></div>
+    <div id="bestGrid" class="app-grid"></div>
+  </section>
+
+  <section class="section" id="latest">
+    <div class="section-heading"><div><p class="section-kicker">FRESH FINDS</p><h2>Latest <span class="muted">apps</span></h2></div><span class="section-count" id="appCount">01 APP</span></div>
+    <div id="latestGrid" class="app-grid"></div>
+    <p class="empty-state hidden" id="emptyState">No apps found. Try another search.</p>
+  </section>
+
+  <section class="update-strip">
+    <div class="update-icon">↗</div><div><p class="section-kicker">LATEST UPDATED POST</p><h3>CricFyTvMOD APK v7.20</h3><p>Live Cricket · Android</p></div><button class="text-button" data-open-app="cricfy">View details <span>→</span></button>
+  </section>
+  <section class="about-section" id="about"><p class="section-kicker">ABOUT KKKMODS</p><h2>Apps made <span class="muted">easy to find.</span></h2><p>Browse app information in one place. Always review the source and app permissions before installing any APK.</p></section>
+</main>
+<footer><a class="brand footer-brand" href="#" data-home><span class="brand-mark">K</span><span>KKK<span class="brand-accent">mods</span></span></a><span>Powered by <b>Kanukedia</b></span><span class="footer-small">© <span id="year"></span> KKKmods</span></footer>
+
+<div id="detailPage" class="detail-page hidden">
+  <button class="back-button" id="backButton">← Back to apps</button>
+  <div id="detailContent"></div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script src="app.js"></script>
+</body>
+</html>
