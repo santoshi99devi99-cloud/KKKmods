@@ -92,6 +92,47 @@ async function loadAppsFromDatabase() {
     return;
   }
 
+  if (!data || data.length === 0) {
+    console.log("Supabase apps table is empty.");
+    return;
+  }
+
+  APPS = data.map((app, index) => ({
+    id: String(app.id ?? index + 1),
+    name: app.name || "Unnamed App",
+    version: app.version || "Latest",
+    category: app.category || "Apps",
+    size: app.size || app.file_size || "Not specified",
+    developer: app.developer || "Not specified",
+    rating: "New",
+    subtitle: app.subtitle || app.category || "Android App",
+    description: app.description || "",
+    about: app.description || "",
+    features: app.features || "App information",
+    downloadUrl: app.download_url || "#",
+    image: app.icon_url || "",
+    icon: "A",
+    tone: "#45a34d",
+    updated: app.updated_at || "Recently",
+    featured: true,
+    game: (app.category || "").toLowerCase() === "games"
+  }));
+
+  render();
+
+  console.log("KKKmods apps rendered:", APPS.length);
+}
+
+loadAppsFromDatabase();
+  const { data, error } = await supabaseClient
+    .from("apps")
+    .select("*");
+
+  if (error) {
+    console.error("Supabase error:", error.message);
+    return;
+  }
+
   console.log("Apps loaded from database:", data);
 }
 
