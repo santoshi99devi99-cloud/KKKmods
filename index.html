@@ -71,5 +71,31 @@ $('menuOpen').addEventListener('click',()=>{$('drawer').classList.add('open');$(
 $('year').textContent=new Date().getFullYear();render();
 if(location.hash.startsWith('#app/')){const id=location.hash.slice(5);const app=APPS.find(a=>a.id===id);if(app)openDetail(app)}
 </script>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://qhcpuqfqxhqtwwpssnoq.supabase.co";
+const SUPABASE_KEY = "sb_publishable_RuT3z4sd88I7VKJMKk9Ycg_CUM8Fe_1";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+async function loadAppsFromDatabase() {
+  const { data, error } = await supabaseClient
+    .from("apps")
+    .select("*");
+
+  if (error) {
+    console.error("Supabase error:", error.message);
+    return;
+  }
+
+  console.log("Apps loaded from database:", data);
+}
+
+loadAppsFromDatabase();
+ </script>
 </body>
 </html>
