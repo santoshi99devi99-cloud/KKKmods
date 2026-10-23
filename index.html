@@ -93,6 +93,48 @@ async function loadAppsFromDatabase() {
   }
 
   if (!data || data.length === 0) {
+    console.log("No apps found in Supabase.");
+    return;
+  }
+
+  APPS = data.map((app, index) => ({
+    id: String(app.id ?? index + 1),
+    name: app.name || "Unnamed App",
+    version: app.version || "Latest",
+    category: app.category || "Apps",
+    size: app.size || app.file_size || "Not specified",
+    developer: app.developer || "Not specified",
+    rating: app.rating || "New",
+    subtitle: app.subtitle || app.category || "Android App",
+    description: app.description || "",
+    about: app.description || "",
+    features: app.features || "Android app",
+    downloadUrl: app.download_url || "#",
+    image: app.icon_url || "",
+    icon: (app.name || "A").charAt(0).toUpperCase(),
+    tone: "#45a34d",
+    updated: app.updated_at || "Recently",
+    featured: true,
+    game: (app.category || "").toLowerCase() === "games"
+  }));
+
+  selectedApp = APPS[0];
+  render();
+
+  console.log("Apps displayed:", APPS.length);
+}
+
+loadAppsFromDatabase();
+  const { data, error } = await supabaseClient
+    .from("apps")
+    .select("*");
+
+  if (error) {
+    console.error("Supabase error:", error.message);
+    return;
+  }
+
+  if (!data || data.length === 0) {
     console.log("Supabase apps table is empty.");
     return;
   }
