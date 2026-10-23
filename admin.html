@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>KKKmods Admin Panel</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}body{font-family:Arial,sans-serif;background:#10131b;color:#f5f6fb;margin:0;padding:18px}
+main{max-width:850px;margin:auto}.card{background:#1b2030;border:1px solid #30384b;padding:18px;border-radius:14px;margin:16px 0}
+input,textarea,button{box-sizing:border-box;width:100%;padding:12px;margin:7px 0;border-radius:8px;font:inherit}
+input,textarea{background:#10131b;color:#fff;border:1px solid #42495c}textarea{min-height:100px}
+button{background:#6d5dfc;color:white;border:0;font-weight:bold;cursor:pointer}.secondary{background:#42495c}.danger{background:#a83b4b}
+.muted{color:#b8bfd0}.app{border-top:1px solid #343b4f;padding:14px 0;overflow-wrap:anywhere}.actions{display:flex;gap:8px}.actions button{flex:1}
+#status{white-space:pre-wrap;padding:10px 12px;border-radius:8px;background:#1b2030}[hidden]{display:none!important}
+@media(max-width:520px){body{padding:12px}.card{padding:14px}}
+</style></head>
+<body><main>
+<h1>KKKmods Admin</h1><p class="muted">Manage app listings in your KKKmods database.</p>
+<p id="status" role="status">Checking configuration…</p>
+<section class="card" id="loginBox"><h2>Admin Login</h2>
+<form id="loginForm"><label for="email">Email</label><input id="email" type="email" autocomplete="username" placeholder="Admin email" required>
+<label for="password">Password</label><input id="password" type="password" autocomplete="current-password" placeholder="Password" required><button type="submit">Login</button></form></section>
+<section id="dashboard" hidden>
+<div class="card"><h2 id="formTitle">Add New App</h2><form id="appForm">
+<label for="appName">App name *</label><input id="appName" maxlength="180" required placeholder="App name">
+<label for="version">Version</label><input id="version" maxlength="80" placeholder="Version">
+<label for="category">Category</label><input id="category" maxlength="80" placeholder="Category">
+<label for="iconUrl">Icon image URL</label><input id="iconUrl" type="url" placeholder="https://example.com/icon.png">
+<label for="description">Description</label><textarea id="description" maxlength="10000" placeholder="App description"></textarea>
+<label for="downloadUrl">Download URL *</label><input id="downloadUrl" type="url" required placeholder="https://…">
+<button type="submit" id="saveButton">Add App</button><button type="button" class="secondary" id="cancelEdit" hidden>Cancel Edit</button>
+</form></div>
+<div class="card"><h2>Existing Apps</h2><div id="appList" class="muted">Loading…</div></div>
+<button class="secondary" id="logoutButton">Logout</button></section></main>
+<script>
+(() => {
+const SUPABASE_URL="https://qhcpuqfqxhqtwwpssnoq.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_RuT3z4sd88I7VKJMKk9Ycg_CUM8Fe_1";
+const statusEl=document.getElementById("status"),loginBox=document.getElementById("loginBox"),dashboard=document.getElementById("dashboard"),appList=document.getElementById("appList");
+let db,editingId=null;
+const status=m=>statusEl.textContent=m;
+function showDashboard(show){loginBox.hidden=show;dashboard.hidden=!show}
+function resetForm(){editingId=null;document.getElementById("appForm").reset();document.getElementById("formTitle").textContent="Add New App";document.getElementById("saveButton").textContent="Add App";document.getElementById("cancelEdit").hidden=true}
+function validUrl(v){try{const u=new URL(v);return u.protocol==="https:"||u.protocol==="http:"}catch(_){return false}}
+async function loadApps(){
+const {data,error}=await db.from("apps").select("id,name,version,category,icon_url,description,download_url,created_at").order("created_at",{ascending:false});
+if(error){status("Could not load apps: "+error.message);return}
+status("Connected. Apps found: "+data.length);appList.replaceChildren();
+if(!data.length){appList.textContent="No apps yet. Add your first app above.";return}
+for(const app of data){const item=document.createElement("div");item.className="app";const title=document.createElement("h3");title.textContent=app.name||"Untitled app";
+const details=document.createElement("p");details.className="muted";details.textContent=(app.category||"Uncategorized")+" · "+(app.version||"No version");
+const actions=document.createElement("div");actions.className="actions";const edit=document.createElement("button");edit.type="button";edit.textContent="Edit";edit.onclick=()=>editApp(app);
+const del=document.createElement("button");del.type="button";del.className="danger";del.textContent="Delete";del.onclick=()=>deleteApp(app);actions.append(edit,del);item.append(title,details,actions);appList.append(item)}
+}
+function editApp(app){editingId=app.id;for(const [id,key] of [["appName","name"],["version","version"],["category","category"],["iconUrl","icon_url"],["description","description"],["downloadUrl","download_url"]])document.getElementById(id).value=app[key]||"";
+document.getElementById("formTitle").textContent="Edit App";document.getElementById("saveButton").textContent="Save Changes";document.getElementById("cancelEdit").hidden=false;window.scrollTo({top:0,behavior:"smooth"})}
+document.getElementById("loginForm").addEventListener("submit",async e=>{e.preventDefault();status("Logging in…");const {error}=await db.auth.signInWithPassword({email:document.getElementById("email").value.trim(),password:document.getElementById("password").value});if(error){status("Login failed: "+error.message);return}showDashboard(true);await loadApps()});
+document.getElementById("appForm").addEventListener("submit",async e=>{e.preventDefault();const app={name:document.getElementById("appName").value.trim(),version:document.getElementById("version").value.trim()||null,category:document.getElementById("category").value.trim()||null,icon_url:document.getElementById("iconUrl").value.trim()||null,description:document.getElementById("description").value.trim()||null,download_url:document.getElementById("downloadUrl").value.trim()};
+if(app.icon_url&&!validUrl(app.icon_url)){status("Icon URL must use HTTP or HTTPS.");return}if(!validUrl(app.download_url)){status("Download URL must use HTTP or HTTPS.");return}
+status("Saving app…");const result=editingId?await db.from("apps").update(app).eq("id",editingId):await db.from("apps").insert(app);if(result.error){status("Save failed: "+result.error.message);return}status("App saved.");resetForm();await loadApps()});
+document.getElementById("cancelEdit").onclick=resetForm;
+document.getElementById("logoutButton").onclick=async()=>{const {error}=await db.auth.signOut();resetForm();showDashboard(false);status(error?"Logout error: "+error.message:"Logged out.")};
+async function deleteApp(app){if(!confirm("Delete “"+app.name+"”? This cannot be undone."))return;status("Deleting app…");const {error}=await db.from("apps").delete().eq("id",app.id);if(error){status("Delete failed: "+error.message);return}status("App deleted.");await loadApps()}
+async function init(){if(!window.supabase){status("Could not load Supabase client. Check internet and reload.");return}
+db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);const {data,error}=await db.auth.getSession();if(error){status("Session error: "+error.message);return}
+if(data.session){showDashboard(true);await loadApps()}else{showDashboard(false);status("Ready. Please log in with your admin account.")}
+db.auth.onAuthStateChange((_event,session)=>{if(!session)showDashboard(false)})}
+init();
+})();
+</script></body></html>
