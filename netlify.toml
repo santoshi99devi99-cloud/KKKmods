@@ -1,5 +1,0 @@
-[[redirects]]
-  from = "https://kkkmod.netlify.app/*"
-  to = "https://kkkmod.cc.cd/:splat"
-  status = 301
-  force = true
